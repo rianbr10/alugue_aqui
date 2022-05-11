@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const createUserToken = require('../helpers/createUserToken');
+const validateEmail = require('../helpers/validateEmail');
 
 module.exports = class UserController {
 
@@ -34,12 +35,7 @@ module.exports = class UserController {
       return;
     }
 
-    const userExists = await User.findOne({email: email});
-
-    if(userExists) {
-      res.status(422).json({ message: 'E-mail já cadastrado!' });
-      return;
-    }
+    await validateEmail.validateEmailRegister(email, req, res);
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -60,4 +56,28 @@ module.exports = class UserController {
 
   }
 
+  static async login(req, res) {
+    
+    const {email, password} = req.body;
+
+    if(!email) {
+      res.status(422).json({ message: 'Digite um e-mail!' });
+      return;
+    }
+    if(!password) {
+      res.status(422).json({ message: 'Digite uma senha!' });
+    }
+
+    const user = await User.findOne({email: email});
+
+    await validateEmail.validateEmailLogin(email, req, res);
+
+    const checkPassowrd = await bcrypt.compare(password, user.password);
+    if(!checkPassowrd) {
+      res.status(422).json({ message: 'Senha incorreta!' });
+      return;
+    }
+
+    await createUserToken(user, req, res);
+  }
 }
