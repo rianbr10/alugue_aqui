@@ -110,20 +110,47 @@ module.exports = class HouseController {
 
   static async getHouseById(req, res) {
     const id = req.params.id;
-     
-    if(!ObjectId.isValid(id)) {
+
+    if (!ObjectId.isValid(id)) {
       res.status(422).json({ message: 'ID inválido!' });
       return;
     }
-    
-    const house = await House.findOne({_id: id});
-    if(!house) {
+
+    const house = await House.findOne({ _id: id });
+    if (!house) {
       res.status(404).json({ message: 'Imóvel não encontrado!' });
     }
 
     try {
       res.status(200).json({ house });
       return;
+    } catch (error) {
+      res.status(500).json({ message: error });
+    }
+  }
+
+  static async removeHouseById(req, res) {
+    const id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+      res.status(422).json({ message: 'ID inválido!' });
+      return;
+    }
+
+    const house = await House.findOne({ _id: id });
+    if (!house) {
+      res.status(404).json({ message: 'Imóvel não encontrado!' });
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    if (house.user._id.toString() !== user._id.toString()) {
+      res.status(422).json({ message: 'Ocorreu um erro, tente novamente!' });
+    }
+
+    try {
+      await House.findByIdAndRemove(id);
+      res.status(200).json({ message: 'Imóvel removido com sucesso!' });
     } catch (error) {
       res.status(500).json({ message: error });
     }

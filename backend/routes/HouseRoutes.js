@@ -15,5 +15,6 @@ router.get('/', HouseController.getAll);
 router.get('/myhouses', verifyToken, HouseController.getAllUserHouses);
 router.get('/myrents', verifyToken, HouseController.getAllHousesRent);
 router.get('/:id', HouseController.getHouseById);
+router.delete('/:id', verifyToken, HouseController.removeHouseById);
 
 module.exports = router;
