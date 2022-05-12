@@ -7,20 +7,22 @@ const imageStorage = multer.diskStorage({
 
     if(req.baseUrl.includes("users")) {
       folder = "users";
-    } else if(req.baseUrl.includes("pets")) {
-      folder = "pets";
+    } else if(req.baseUrl.includes("houses")) {
+      folder = "houses";
     }
     cb(null, `public/images/${folder}`);
   },
   filename: function(req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, Date.now() + 
+      String(Math.floor(Math.random() * 1000)) + 
+      path.extname(file.originalname));
   }
 });
 
 const imageUpload = multer({
   storage: imageStorage,
   fileFilter(req, file, cb) {
-    if(!file.originalname.match(/\.(png|jpg)$/)) {
+    if(!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
       return cb(new Error("Envie uma imagem no formato png ou jpg!"));
     }
     cb(undefined, true);

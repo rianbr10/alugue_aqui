@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const UserRoutes = require('./routes/UserRoutes');
+const HouseRoutes = require('./routes/HouseRoutes');
 
 const app = express();
 
@@ -16,5 +17,6 @@ app.use(express.static('public'));
 
 //Routes
 app.use('/users', UserRoutes);
+app.use('/houses', HouseRoutes);
 
 app.listen(5000);

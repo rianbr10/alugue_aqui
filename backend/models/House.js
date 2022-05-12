@@ -26,7 +26,6 @@ const House = mongoose.model(
     },
     description: {
       type: String,
-      required: true
     },
     images: {
       type: Array,
