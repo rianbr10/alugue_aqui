@@ -1,6 +1,7 @@
 const House = require('../models/House');
 const getToken = require('../helpers/getToken');
 const getUserByToken = require('../helpers/getUserByToken');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = class HouseController {
 
@@ -91,6 +92,40 @@ module.exports = class HouseController {
       res.status(200).json({ houses });
     } catch (error) {
       res.status(500).json({ error });
+    }
+  }
+
+  static async getAllHousesRent(req, res) {
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    const houses = await House.find({ 'rent._id': user._id }).sort('-createdAt');
+
+    try {
+      res.status(200).json({ houses });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
+
+  static async getHouseById(req, res) {
+    const id = req.params.id;
+     
+    if(!ObjectId.isValid(id)) {
+      res.status(422).json({ message: 'ID inválido!' });
+      return;
+    }
+    
+    const house = await House.findOne({_id: id});
+    if(!house) {
+      res.status(404).json({ message: 'Imóvel não encontrado!' });
+    }
+
+    try {
+      res.status(200).json({ house });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: error });
     }
   }
 }
