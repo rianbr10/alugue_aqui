@@ -11,5 +11,7 @@ router.post(
   imageUpload.array('images'), 
   HouseController.registerHouse
 );
+router.get('/', HouseController.getAll);
+router.get('/myhouses', verifyToken, HouseController.getAllUserHouses);
 
 module.exports = router;

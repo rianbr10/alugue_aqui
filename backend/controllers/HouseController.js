@@ -9,27 +9,27 @@ module.exports = class HouseController {
     const images = req.files;
     const available = true;
 
-    if(!title) {
+    if (!title) {
       res.status(422).json({ message: 'O título é obrigatório!' });
       return;
     }
-    if(!value) {
+    if (!value) {
       res.status(422).json({ message: 'O valor é obrigatório!' });
       return;
     }
-    if(!rooms) {
+    if (!rooms) {
       res.status(422).json({ message: 'O número de cômodos é obrigatório!' });
       return;
     }
-    if(!category) {
+    if (!category) {
       res.status(422).json({ message: 'A categoria é obrigatória!' });
       return;
     }
-    if(!adress) {
+    if (!adress) {
       res.status(422).json({ message: 'O endereço é obrigatório!' });
       return;
     }
-    if(images.length === 0) {
+    if (images.length === 0) {
       res.status(422).json({ message: 'A imagem é obrigatória!' });
       return;
     }
@@ -66,9 +66,31 @@ module.exports = class HouseController {
         message: 'Imóvel cadastrado com sucesso!',
         newHouse
       });
-    } catch(error){
+    } catch (error) {
       res.status(500).json({ message: error });
     }
   }
 
+  static async getAll(req, res) {
+    const houses = await House.find().sort('-createdAt');
+
+    try {
+      res.status(200).json({ houses: houses });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
+
+  static async getAllUserHouses(req, res) {
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    const houses = await House.find({ 'user._id': user._id }).sort('-createdAt');
+
+    try {
+      res.status(200).json({ houses });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
 }
