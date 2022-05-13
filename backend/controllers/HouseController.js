@@ -140,12 +140,14 @@ module.exports = class HouseController {
     const house = await House.findOne({ _id: id });
     if (!house) {
       res.status(404).json({ message: 'Imóvel não encontrado!' });
+      return;
     }
 
     const token = getToken(req);
     const user = await getUserByToken(token);
     if (house.user._id.toString() !== user._id.toString()) {
       res.status(422).json({ message: 'Ocorreu um erro, tente novamente!' });
+      return;
     }
 
     try {
@@ -153,6 +155,82 @@ module.exports = class HouseController {
       res.status(200).json({ message: 'Imóvel removido com sucesso!' });
     } catch (error) {
       res.status(500).json({ message: error });
+    }
+  }
+
+  static async updateHouse(req, res) {
+    const id = req.params.id;
+
+    const { title, value, rooms, category, adress, description, available } = req.body;
+    const images = req.files;
+
+    const updatedData = {};
+
+    const house = await House.findOne({ _id: id });
+    if (!house) {
+      res.status(404).json({ message: 'Imóvel não encontrado!' });
+      return;
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    if (house.user._id.toString() !== user._id.toString()) {
+      res.status(422).json({ message: 'Ocorreu um erro, tente novamente!' });
+      return;
+    }
+
+    if (!title) {
+      res.status(422).json({ message: 'O título é obrigatório!' });
+      return;
+    } else {
+      updatedData.title = title;
+    }
+
+    if (!value) {
+      res.status(422).json({ message: 'O valor é obrigatório!' });
+      return;
+    } else {
+      updatedData.value = value;
+    }
+
+    if (!rooms) {
+      res.status(422).json({ message: 'O número de cômodos é obrigatório!' });
+      return;
+    } else {
+      updatedData.rooms = rooms;
+    }
+
+    if (!category) {
+      res.status(422).json({ message: 'A categoria é obrigatória!' });
+      return;
+    } else {
+      updatedData.category = category;
+    }
+
+    if (!adress) {
+      res.status(422).json({ message: 'O endereço é obrigatório!' });
+      return;
+    } else {
+      updatedData.adress = adress;
+    }
+
+    if (images.length === 0) {
+      res.status(422).json({ message: 'A imagem é obrigatória!' });
+      return;
+    } else {
+      updatedData.images = [];
+      images.map((image) => {
+        updatedData.images.push(image.filename);
+      });
+    }
+
+    try {
+      await House.findByIdAndUpdate(id, updatedData);
+      res.status(200).json({ message: 'Imóvel atualizado com sucesso!' });
+      return;
+    } catch (error) {
+      res.status(500).json({ error });
+      return;
     }
   }
 }

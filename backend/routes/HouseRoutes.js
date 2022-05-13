@@ -16,5 +16,11 @@ router.get('/myhouses', verifyToken, HouseController.getAllUserHouses);
 router.get('/myrents', verifyToken, HouseController.getAllHousesRent);
 router.get('/:id', HouseController.getHouseById);
 router.delete('/:id', verifyToken, HouseController.removeHouseById);
+router.patch(
+  '/:id', 
+  verifyToken, 
+  imageUpload.array('images'), 
+  HouseController.updateHouse
+);
 
 module.exports = router;
