@@ -35,7 +35,8 @@ const House = mongoose.model(
       type: Boolean
     },
     user: Object,
-    renter: Object
+    renter: Object,
+    schedule: Object,
   },
   { timestamps: true }
   )

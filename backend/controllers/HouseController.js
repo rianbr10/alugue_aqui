@@ -49,6 +49,7 @@ module.exports = class HouseController {
       description: description,
       available: available,
       images: [],
+      schedule: [],
       user: {
         _id: user._id,
         name: user.name,
@@ -232,5 +233,77 @@ module.exports = class HouseController {
       res.status(500).json({ error });
       return;
     }
+  }
+
+  static async schedule(req, res) {
+    const id = req.params.id;
+
+    const house = await House.findOne({ _id: id });
+    if (!house) {
+      res.status(404).json({ message: 'Imóvel não encontrado!' });
+      return;
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    if (house.user._id.toString() == user._id.toString()) {
+      res.status(422).json({ message: 'Você não pode agendar uma visita no seu próprio imóvel!' });
+      return;
+    }
+
+    if (house.schedule) {
+      if (house.schedule._id == user._id) {
+        res.status(422).json({ message: 'Você já agendou uma visita neste imóvel!' });
+        return;
+      }
+    }
+
+    house.schedule = {
+      _id: user.id,
+      name: user.name,
+      image: user.image
+    }
+
+    try {
+      await House.findByIdAndUpdate(id, house);
+      res.status(200).json({
+        message: `A visita foi agendada com sucesso, entre em contato com ${house.user.name} pelo telefone ${house.user.phone}!`
+      });
+    } catch (error) {
+      res.status(500).json({ message: error });
+    }
+  }
+
+  static async concludeRent(req, res) {
+    const id = req.params.id;
+
+    const house = await House.findOne({ _id: id });
+    if (!house) {
+      res.status(404).json({ message: 'Imóvel não encontrado!' });
+      return;
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    if (house.user._id.toString() !== user._id.toString()) {
+      res.status(422).json({ message: 'Ocorreu um erro, tente novamente!' });
+      return;
+    }
+
+    try {
+      if (house.available === false) {
+        res.status(422).json({ message: 'Este imóvel já esta alugado!' });
+        return;
+      } else {
+        house.available = false;
+        await House.findByIdAndUpdate(id, house);
+        res.status(200).json({ message: 'Imóvel alugado com sucesso!' });
+        return;
+      }
+    } catch (error) {
+      res.status(500).json({ message: error });
+      return;
+    }
+
   }
 }

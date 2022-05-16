@@ -22,5 +22,7 @@ router.patch(
   imageUpload.array('images'), 
   HouseController.updateHouse
 );
+router.patch('/schedule/:id', verifyToken, HouseController.schedule);
+router.patch('/conclude/:id', verifyToken, HouseController.concludeRent);
 
 module.exports = router;
