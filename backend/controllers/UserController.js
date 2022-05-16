@@ -2,7 +2,6 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const createUserToken = require('../helpers/createUserToken');
-const validateEmail = require('../helpers/validateEmail');
 const getToken = require('../helpers/getToken');
 const getUserByToken = require('../helpers/getUserByToken');
 
@@ -38,7 +37,11 @@ module.exports = class UserController {
       return;
     }
 
-    await validateEmail.validateEmailRegister(email, req, res);
+    const userExists = await User.findOne({ email: email });
+    if (userExists) {
+      res.status(422).json({ message: 'E-mail já cadastrado!' });
+      return;
+    }
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -72,8 +75,10 @@ module.exports = class UserController {
     }
 
     const user = await User.findOne({ email: email });
-
-    await validateEmail.validateEmailLogin(email, req, res);
+    if (!user) {
+      res.status(422).json({ message: 'E-mail não cadastrado!' });
+      return;
+    }
 
     const checkPassowrd = await bcrypt.compare(password, user.password);
     if (!checkPassowrd) {
@@ -129,7 +134,7 @@ module.exports = class UserController {
 
     const { name, email, phone, password, confirmpassword } = req.body;
 
-    if(req.file) {
+    if (req.file) {
       user.image = req.file.filename;
     }
 
