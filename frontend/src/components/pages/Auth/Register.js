@@ -51,7 +51,7 @@ function Register() {
         <input type="submit" value="Cadastrar" />
       </form>
       <p>
-        Já possui uma conta? <Link to="/login">Fazer login</Link>
+        Já possui uma conta? <Link to="/login">Fazer login.</Link>
       </p>
     </section>
   )
