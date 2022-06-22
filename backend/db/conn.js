@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 async function main() {
-  await mongoose.connect("mongodb+srv://rianbrunelli:rian789456@alugueaqui.akwtctz.mongodb.net/?retryWrites=true&w=majority");
+  await mongoose.connect(process.env.DB);
   console.log("Connected!");
 }
 
