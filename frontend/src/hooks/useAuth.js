@@ -17,6 +17,7 @@ export default function useAuth() {
     }
   }, []);
 
+  //function de register
   async function Register(user) {
 
     let msgText = 'Cadastro realizado com sucesso!';
